@@ -41,5 +41,9 @@
     "printWidth": 120,
     "semi": false,
     "singleQuote": true
+  },
+  "private": false,
+  "publishConfig": {
+    "access": "public"
   }
 }
