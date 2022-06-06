@@ -4,7 +4,7 @@ import JSBI from 'jsbi'
 import { pack, keccak256 } from '@ethersproject/solidity'
 import { getCreate2Address } from '@ethersproject/address'
 
-import { FACTORY_ADDRESS, INIT_CODE_HASH, MINIMUM_LIQUIDITY, FIVE, _997, _1000, ONE, ZERO } from '../constants'
+import { MINIMUM_LIQUIDITY, FIVE, _997, _1000, ONE, ZERO, v2SdkConfig } from '../constants'
 import { InsufficientReservesError, InsufficientInputAmountError } from '../errors'
 
 export const computePairAddress = ({
@@ -17,10 +17,15 @@ export const computePairAddress = ({
   tokenB: Token
 }): string => {
   const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+
+  if (!v2SdkConfig.initCodeHash) {
+    throw new Error('Error INIT_CODE_HASH')
+  }
+
   return getCreate2Address(
     factoryAddress,
     keccak256(['bytes'], [pack(['address', 'address'], [token0.address, token1.address])]),
-    INIT_CODE_HASH
+    v2SdkConfig.initCodeHash
   )
 }
 export class Pair {
@@ -28,7 +33,11 @@ export class Pair {
   private readonly tokenAmounts: [CurrencyAmount<Token>, CurrencyAmount<Token>]
 
   public static getAddress(tokenA: Token, tokenB: Token): string {
-    return computePairAddress({ factoryAddress: FACTORY_ADDRESS, tokenA, tokenB })
+    if (!v2SdkConfig.factoryAddress) {
+      throw new Error('Error FACTORY_ADDRESS')
+    }
+
+    return computePairAddress({ factoryAddress: v2SdkConfig.factoryAddress, tokenA, tokenB })
   }
 
   public constructor(currencyAmountA: CurrencyAmount<Token>, tokenAmountB: CurrencyAmount<Token>) {

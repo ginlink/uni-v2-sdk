@@ -1,6 +1,12 @@
 import { Token, WETH9, Price, CurrencyAmount } from '@uniswap/sdk-core'
+import { v2SdkConfig } from '..'
 import { InsufficientInputAmountError } from '../errors'
 import { computePairAddress, Pair } from './pair'
+
+v2SdkConfig.updateConfig({
+  factoryAddress: '0xF72Ad9009e81181E342153b20e8afe8aD21DA3e7',
+  initCodeHash: '0x84a902c06264b6d04c9b7841473fa6e0634300f5331c41061f26ab4ce126de78'
+})
 
 describe('computePairAddress', () => {
   it('should correctly compute the pool address', () => {
